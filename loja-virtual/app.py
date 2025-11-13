@@ -8,9 +8,13 @@ def get_connection():
         host="localhost",
         port=3306,
         user="root",
-        password="senai",
+        password="root",
         database="bdprodutos"
     )
+
+app.route("/")
+def index():
+    return render_template("index.html")    
 
 @app.route("/produtos/cadastrar", methods=["GET", "POST"])
 def cadastrarProduto():
@@ -50,6 +54,24 @@ def cadastrarProduto():
             """    
     else:
         return render_template("produtos/cadastrar.html")
+    
+@app.route('/produtos')
+def listarProdutos():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        sql = "SELECT * FROM TBPRODUTOS"
+        cursor.execute(sql)
+
+        produtos = cursor.fetchall()
+        conn.close()
+
+        return render_template("produtos/lista-produtos.html", produtos=produtos)
+
+    except Exception as e:
+        return f"Erro ao listar produtos: {str(e)}"
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=80)
